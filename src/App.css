@@ -38,8 +38,13 @@
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 .error-banner {
@@ -76,4 +81,11 @@
 
 .navigation-hint p {
   margin: 2px 0;
+}
+
+/* Hide the hint on mobile since we have touch navigation buttons */
+@media (max-width: 768px) {
+  .navigation-hint {
+    display: none;
+  }
 }

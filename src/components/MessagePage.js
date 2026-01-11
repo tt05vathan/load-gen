@@ -2,7 +2,18 @@ import React, { useState, useRef, useEffect } from 'react';
 import { imageUtils } from '../services/api';
 import './MessagePage.css';
 
-const MessagePage = ({ page, pageNumber, totalPages, onUpdatePage, direction = 'right', navigationKey }) => {
+const MessagePage = ({
+  page,
+  pageNumber,
+  totalPages,
+  onUpdatePage,
+  direction = 'right',
+  navigationKey,
+  onPrevious,
+  onNext,
+  canGoPrevious,
+  canGoNext
+}) => {
   const [text, setText] = useState(page?.text || '');
   const [image, setImage] = useState(page?.image || null);
   const [uploading, setUploading] = useState(false);
@@ -34,10 +45,10 @@ const MessagePage = ({ page, pageNumber, totalPages, onUpdatePage, direction = '
 
       // Compress image for better performance
       const compressedFile = await imageUtils.compressImage(file);
-      
+
       // Convert to Base64
       const imageData = await imageUtils.fileToBase64(compressedFile);
-      
+
       setImage(imageData);
       onUpdatePage({ image: imageData });
     } catch (error) {
@@ -61,12 +72,28 @@ const MessagePage = ({ page, pageNumber, totalPages, onUpdatePage, direction = '
     }
   };
 
+  const handlePreviousClick = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (canGoPrevious && onPrevious) {
+      onPrevious();
+    }
+  };
+
+  const handleNextClick = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (onNext) {
+      onNext();
+    }
+  };
+
   return (
     <div className="message-page">
       <div className="page-header">
         <h2>💕 Memory {pageNumber} 💕</h2>
       </div>
-      
+
       <div className="card-container">
         <div key={navigationKey} className={`memory-card slide-from-${direction}`}>
           <div className="card-content">
@@ -98,7 +125,7 @@ const MessagePage = ({ page, pageNumber, totalPages, onUpdatePage, direction = '
                   </div>
                 )}
               </div>
-              
+
               <input
                 type="file"
                 ref={fileInputRef}
@@ -108,7 +135,7 @@ const MessagePage = ({ page, pageNumber, totalPages, onUpdatePage, direction = '
                 disabled={uploading}
               />
             </div>
-            
+
             <div className="text-section">
               <h3>Your Message 💌</h3>
               <textarea
@@ -121,12 +148,23 @@ const MessagePage = ({ page, pageNumber, totalPages, onUpdatePage, direction = '
           </div>
         </div>
       </div>
-      
+
       <div className="page-info">
         <div className="navigation-tips">
-          <span>← Previous</span>
+          <button
+            className={`nav-button nav-prev ${!canGoPrevious ? 'disabled' : ''}`}
+            onClick={handlePreviousClick}
+            disabled={!canGoPrevious}
+          >
+            ← Previous
+          </button>
           <span className="page-counter">{pageNumber} / {totalPages}</span>
-          <span>Next →</span>
+          <button
+            className="nav-button nav-next"
+            onClick={handleNextClick}
+          >
+            Next →
+          </button>
         </div>
       </div>
     </div>
